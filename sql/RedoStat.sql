@@ -1,0 +1,135 @@
+select
+       SNAP_TIME,
+       SNAP_ID,
+       R_KB_READ,
+       R_KB_READ_MEMORY,
+       R_KB_READ_MEM4TRANSPORT,
+       R_KB_READ4TRANSPORT,
+       R_BLCKS_CHCKSMMD_BYFGEXCLUSIVE,
+       R_BLOCKS_CHECKSUMMED_BY_LGWR,
+       R_BLOCKS_READ4RECOVERY,
+       R_BLOCKS_WRITTEN,
+       R_BUFFER_ALLOCATION_RETRIES,
+       R_ENTRIES,
+       R_ENTRIES4LOST_WRITE_DETECTION,
+       R_KB_READ4RECOVERY,
+       R_KB_READ4TERMINAL_RECOVERY,
+       R_LOG_SPACE_REQUESTS,
+       R_LOG_SPACE_WAIT_TIME,
+       R_ORDERING_MARKS,
+       R_SIZE,
+       R_SIZE4DIRECT_WRITES,
+       R_SIZE4LOST_WR_DETECTION,
+       R_SUBSCN_MAX_COUNTS,
+       R_SYNCH_LONG_WAITS,
+       R_SYNCH_POLL_WRITES,
+       R_SYNCH_POLLS,
+       R_SYNCH_TIME,
+       R_SYNCH_TIME_USEC,
+       R_SYNCH_WRITES,
+       R_WASTAGE,
+       RW_BROADCAST_ACK_COUNT,
+       RW_BROADCAST_ACK_TIME,
+       RW_BROADCAST_LGWR_POST_COUNT,
+       RW_TIME,
+       R_WRITES,
+       r_synch_time/r_synch_writes as redo_sync_wr_latency
+  from (with local_data as (select --Trunc(S.BEGIN_INTERVAL_TIME,'HH24')                 as snap_time,
+                                          to_char(S.BEGIN_INTERVAL_TIME,'dd.mm.yyyy hh24:mi') as snap_time,
+                                          --S.BEGIN_INTERVAL_TIME                               as snap_time,
+                                          s.snap_id                                           as snap_id,
+                                          ST.VALUE                                            as stat_value,
+                                          SN.STAT_NAME                                        as stat_name
+                                     from WRM$_SNAPSHOT  s,
+                                          WRH$_SYSSTAT   st,
+                                          WRH$_STAT_NAME sn
+                                     where s.dbid             = :v_dbid
+                                       and S.INSTANCE_NUMBER  = 1
+                                       and ST.DBID            = s.dbid
+                                       and ST.INSTANCE_NUMBER = S.INSTANCE_NUMBER
+                                       and st.snap_id         = s.snap_id
+                                       and st.dbid            = sn.dbid
+                                       and ST.STAT_ID         = sn.stat_id
+                                       and SN.STAT_NAME in ('redo KB read',
+                                                            'redo KB read (memory)',
+                                                            'redo KB read (memory) for transport',
+                                                            'redo KB read for transport',
+                                                            'redo blocks checksummed by FG (exclusive)',
+                                                            'redo blocks checksummed by LGWR',
+                                                            'redo blocks read for recovery',
+                                                            'redo blocks written',
+                                                            'redo buffer allocation retries',
+                                                            'redo entries',
+                                                            'redo entries for lost write detection',
+                                                            'redo k-bytes read for recovery',
+                                                            'redo k-bytes read for terminal recovery',
+                                                            'redo log space requests',
+                                                            'redo log space wait time',
+                                                            'redo ordering marks',
+                                                            'redo size',
+                                                            'redo size for direct writes',
+                                                            'redo size for lost write detection',
+                                                            'redo subscn max counts',
+                                                            'redo synch long waits',
+                                                            'redo synch poll writes',
+                                                            'redo synch polls',
+                                                            'redo synch time',
+                                                            'redo synch time (usec)',
+                                                            'redo synch writes',
+                                                            'redo wastage',
+                                                            'redo write broadcast ack count',
+                                                            'redo write broadcast ack time',
+                                                            'redo write broadcast lgwr post count',
+                                                            'redo write time',
+                                                            'redo writes')
+                                       and S.SNAP_ID between :v_begin_snap and :v_end_snap),
+                    b          as ( select * from local_data ),
+                    e          as ( select * from local_data )
+  select e.snap_time as snap_time,
+         e.snap_id   as snap_id,
+         e.stat_name as stat_name,
+         case when (e.stat_value - b.stat_value) < 0
+           then null
+           else (e.stat_value - b.stat_value)
+           end       as value_diff
+    from b,
+         e
+    where e.snap_id   = (b.snap_id+1)
+      and e.stat_name = b.stat_name
+              ) v
+pivot (max(value_diff) for stat_name in (
+'redo KB read'                              as r_KB_read,
+'redo KB read (memory)'                     as r_KB_read_memory,
+'redo KB read (memory) for transport'       as r_KB_read_mem4transport,
+'redo KB read for transport'                as r_KB_read4transport,
+'redo blocks checksummed by FG (exclusive)' as r_blcks_chcksmmd_byFGexclusive,
+'redo blocks checksummed by LGWR'           as r_blocks_checksummed_by_LGWR,
+'redo blocks read for recovery'             as r_blocks_read4recovery,
+'redo blocks written'                       as r_blocks_written,
+'redo buffer allocation retries'            as r_buffer_allocation_retries,
+'redo entries'                              as r_entries,
+'redo entries for lost write detection'     as r_entries4lost_write_detection,
+'redo k-bytes read for recovery'            as r_kb_read4recovery,
+'redo k-bytes read for terminal recovery'   as r_kb_read4terminal_recovery,
+'redo log space requests'                   as r_log_space_requests,
+'redo log space wait time'                  as r_log_space_wait_time,
+'redo ordering marks'                       as r_ordering_marks,
+'redo size'                                 as r_size,
+'redo size for direct writes'               as r_size4direct_writes,
+'redo size for lost write detection'        as r_size4lost_wr_detection,
+'redo subscn max counts'                    as r_subscn_max_counts,
+'redo synch long waits'                     as r_synch_long_waits,
+'redo synch poll writes'                    as r_synch_poll_writes,
+'redo synch polls'                          as r_synch_polls,
+'redo synch time'                           as r_synch_time,
+'redo synch time (usec)'                    as r_synch_time_usec,
+'redo synch writes'                         as r_synch_writes,
+'redo wastage'                              as r_wastage,
+'redo write broadcast ack count'            as rw_broadcast_ack_count,
+'redo write broadcast ack time'             as rw_broadcast_ack_time,
+'redo write broadcast lgwr post count'      as rw_broadcast_lgwr_post_count,
+'redo write time'                           as rw_time,
+'redo writes'                               as r_writes
+)
+ )
+order by snap_time
