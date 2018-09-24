@@ -12,6 +12,7 @@ from xlsxwriter.utility import xl_rowcol_to_cell
 
 # __all__
 
+
 # variables definition
 v_configuration = {}
 #
