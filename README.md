@@ -43,9 +43,9 @@ Format:
 id:sql script:chart title:chart config file:columns config file
 ```
 where chart config file is one of following:
-1. none - not print chart
-2. default - use all data to print one chart only
-3. custom charts configuration file name
+1. **none** - not print chart
+2. **default** - use all data to print one chart only
+3. **custom charts configuration file name**
 
 Examle:
 ```
