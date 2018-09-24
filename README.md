@@ -76,7 +76,7 @@ Format:
 column number:column title:formula
 ```
 
-**_ROWID_** - is service variable for rowid substitution
+** _ROWID_ ** - is service variable for rowid substitution
 
 Example:
 ```
