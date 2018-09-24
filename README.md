@@ -47,7 +47,7 @@ where chart config file is one of following:
 2. **default** - use all data to print one chart only
 3. **custom charts configuration file name**
 
-Examle:
+Example:
 ```
 1:RDBMSServiceTime.sql:Стр-ра сервисного времени субд:default
 2:WaitTimeStructure.sql:Стр-ра времени ожиданий субд:default
