@@ -238,10 +238,10 @@ v_db_connection.module = "excell_making"
 # creating xls file
 if len(v_configuration["DB_NAME"]) == 0:
     v_workbook = xlsxwriter.Workbook(v_prefix +
-                                     "report.xls",  {'constant_memory': True})
+                                     "report_" + date.today().strftime("%Y%m%d") + ".xls",  {'constant_memory': True})
 else:
     v_workbook = xlsxwriter.Workbook(v_prefix +
-                                     v_configuration["DB_NAME"] +
+                                     v_configuration["DB_NAME"] + "_" + date.today().strftime("%Y%m%d") +
                                      ".xls",  {'constant_memory': True})
 if not v_configuration.get("AUTHOR"):
     v_conf_author = 'unknown'
@@ -274,11 +274,11 @@ float_format = v_workbook.add_format({'num_format': '#,###0.0000',
                                       'font_name': 'Arial',
                                       'font_size': 10})
 if len(v_configuration["DB_NAME"]) == 0:
-    v_logger.debug('Created xls report:' + v_prefix +
-                   "report.xls")
+    v_logger.debug('Created xls report: ' + v_prefix +
+                   "report_" + date.today().strftime("%Y%m%d") + ".xls")
 else:
-    v_logger.debug('Created xls report:' + v_prefix +
-                   v_configuration["DB_NAME"] +
+    v_logger.debug('Created xls report: ' + v_prefix +
+                   v_configuration["DB_NAME"] + "_" + + date.today().strftime("%Y%m%d") +
                    ".xls")
 
 try:
