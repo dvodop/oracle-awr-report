@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [unreleased]
 ### Changed
 - added date to workbook file name
+- added dbname to custom charts titles
 
 ## [1.0.0] - 2018-09-24
 ###

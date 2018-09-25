@@ -420,7 +420,10 @@ for i in v_conf:
             v_chart_conf = sorted(v_chart_conf, key=lambda x: int(x[0]), reverse=False)
 
             for chart_id in range(len(v_chart_conf)):
-                v_chart_title = v_chart_conf[chart_id][2]
+                if i[2] == "":
+                    v_chart_title = v_configuration["DB_NAME"] + " " + v_chart_conf[chart_id][2]
+                else:
+                    v_chart_title = i[2] + " " + v_chart_conf[chart_id][2]
                 # if this chart id is already exist
                 if v_current_chart_id == int(v_chart_conf[chart_id][0]):
                     # add column to chart
