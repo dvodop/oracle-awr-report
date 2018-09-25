@@ -14,6 +14,9 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm). For 
 * xlswriter 1.0.5 or higher
 
 ## Tested on
+* python 2.7.12
+  * cx_Oracle 6.4.1
+  * xlsxwriter 1.0.9
 * python 2.7.15
   * cx_Oracle 5.3
   * xlsxwriter 1.0.5
