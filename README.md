@@ -87,3 +87,6 @@ Example:
 12:userio:=WaitTimeStructure!D_ROWID_/10000
 13:rr-latency:=C_ROWID_/E_ROWID_
 ```
+
+## Report worksheet example
+![DB wait time structure](DOC/oracle-awr-report.png)
