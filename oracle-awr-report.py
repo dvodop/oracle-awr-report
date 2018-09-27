@@ -278,7 +278,7 @@ if len(v_configuration["DB_NAME"]) == 0:
                    "report_" + date.today().strftime("%Y%m%d") + ".xls")
 else:
     v_logger.debug('Created xls report: ' + v_prefix +
-                   v_configuration["DB_NAME"] + "_" + + date.today().strftime("%Y%m%d") +
+                   v_configuration["DB_NAME"] + "_" + date.today().strftime("%Y%m%d") +
                    ".xls")
 
 try:
