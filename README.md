@@ -27,7 +27,11 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm). For 
 ## Main configuration **conf.d/general.conf**
 | Parameter name | Description                              		    | Mandatory | Not null
 | -------------- | -------------------------------------------------------- | --------- | --------
-| TNS_ALIAS      | alias from tnsnames.ora to db connection 		    | +         | +
+| TNS_ALIAS      | alias from tnsnames.ora to db connection 		    | +-        | +
+| HOST           | database server hostname/ipaddr			    | +-        | +
+| PORT		 | database port (default: 1521)                            | -         | +
+| SID            | database SID                                             | +-        | +
+| SERVICE_NAME   | database SERVICE_NAME                                    | +-        | +
 | USERNAME       | database login                            		    | +         | +
 | PASSWORD       | database password                        		    | +         | +
 | DBID		 | database id						    | -         | +
@@ -39,6 +43,9 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm). For 
 | COMPANY        | report company            		                    | -         | -
 | LOGGING        | log level, one of: DEBUG, INFO, WARNING, ERROR, CRITICAL | -         | +
 | REPORT_CONF    | report configuration file 				    | +         | +
+
+* When TNS_ALIAS exist, we using it. Otherwise we using HOST, PORT and SID/SERVICE_NAME
+* When SID exist, we using it. Otherwise we using SERVICE_NAME
 
 ## Report configuration file
 Format:
