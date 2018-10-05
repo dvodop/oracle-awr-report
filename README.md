@@ -6,7 +6,7 @@ oracle-awr-report.py is easy-to-use data exporter from Oracle database to xls (E
 * Customizing charts
 * Adding computed columns
 
-AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm). For Oracle Database AWR 12.1 or higher
+AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm)
 
 # Prerequisite
 * python 2.7 or higher
@@ -17,6 +17,9 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm). For 
 * python 2.7.12
   * cx_Oracle 6.4.1
   * xlsxwriter 1.0.9
+* python 2.7.12
+  * cx_Oracle 5.3
+  * xlswriter 1.1.1
 * python 2.7.15
   * cx_Oracle 5.3
   * xlsxwriter 1.0.5
