@@ -178,16 +178,7 @@ if v_configuration.get("PREFIX"):
 
 # connecting to database
 try:
-    if v_configuration.get("TNS_ALIAS"):
-        if v_configuration["USERNAME"] == "SYS":
-            v_db_connection = cx_Oracle.connect(v_configuration["USERNAME"] + "/" +
-                                                v_configuration["PASSWORD"] + "@" +
-                                                v_configuration["TNS_ALIAS"], mode=cx_Oracle.SYSDBA)
-        else:
-            v_db_connection = cx_Oracle.connect(v_configuration["USERNAME"] + "/" +
-                                                v_configuration["PASSWORD"] + "@" +
-                                                v_configuration["TNS_ALIAS"])
-    else:
+    if not v_configuration.get("TNS_ALIAS"):
         v_db_host = v_configuration["HOST"]
         if v_configuration.get("PORT"):
             v_db_port = int(v_configuration["PORT"])
@@ -206,15 +197,16 @@ try:
             v_logger.error("Unknown SID/SERVICE_NAME parameter for db connection!")
             exit(1)
 
-        if v_configuration["USERNAME"] == "SYS":
-            v_db_connection = cx_Oracle.connect(v_configuration["USERNAME"] + "/" +
-                                                v_configuration["PASSWORD"] + "@" +
-                                                v_dsn, mode=cx_Oracle.SYSDBA)
-        else:
-            v_db_connection = cx_Oracle.connect(v_configuration["USERNAME"] + "/" +
-                                                v_configuration["PASSWORD"] + "@" +
-                                                v_dsn)
         v_configuration["TNS_ALIAS"] = v_dsn
+
+    if v_configuration["USERNAME"] == "SYS":
+        v_db_connection = cx_Oracle.connect(v_configuration["USERNAME"] + "/" +
+                                            v_configuration["PASSWORD"] + "@" +
+                                            v_configuration["TNS_ALIAS"], mode=cx_Oracle.SYSDBA)
+    else:
+        v_db_connection = cx_Oracle.connect(v_configuration["USERNAME"] + "/" +
+                                            v_configuration["PASSWORD"] + "@" +
+                                            v_configuration["TNS_ALIAS"])
 
 except cx_Oracle.DatabaseError as connect_error:
     error, = connect_error.args
