@@ -178,7 +178,7 @@ if v_configuration.get("PREFIX"):
 
 # connecting to database
 try:
-    if v_configuration.get("TNSNAMES"):
+    if v_configuration.get("TNS_ALIAS"):
         if v_configuration["USERNAME"] == "SYS":
             v_db_connection = cx_Oracle.connect(v_configuration["USERNAME"] + "/" +
                                                 v_configuration["PASSWORD"] + "@" +
