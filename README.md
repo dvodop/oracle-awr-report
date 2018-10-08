@@ -65,8 +65,8 @@ where chart config file is one of following:
 
 Example:
 ```
-1:RDBMSServiceTime.sql:Стр-ра сервисного времени субд:default
-2:WaitTimeStructure.sql:Стр-ра времени ожиданий субд:default
+1:RDBMSServiceTime.sql:Database Service Time Stucture:default
+2:WaitTimeStructure.sql:Database Wait Time Structure:default
 3:RedoStat.sql::conf.d/redostat.conf
 ```
 
