@@ -28,6 +28,8 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm)
   * xlsxwriter 1.0.5
 
 ## Main configuration **conf.d/general.conf**
+_All config files openes with utf-8 encoding_
+
 | Parameter name | Description                              		    | Mandatory | Not null
 | -------------- | -------------------------------------------------------- | --------- | --------
 | TNS_ALIAS      | alias from tnsnames.ora to db connection 		    | +-        | +
@@ -49,7 +51,7 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm)
 
 * When TNS_ALIAS exist, we using it. Otherwise we using HOST, PORT and SID/SERVICE_NAME
 * When SID exist, we using it. Otherwise we using SERVICE_NAME
-* When PASSWORD not present in general.conf, reading it from input
+* When PASSWORD not present in general.conf, read it from input
 
 ## Report configuration file
 Format:

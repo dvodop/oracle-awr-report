@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - fixed bug in DEBUG logging
 - added configuration parameters HOST,PORT,SID,SERVICE_NAME as an alternative to TNS_ALIAS
 - added reading password from command line, when it not preset in config file
+- fixed opening config files with utf-8 encoding
 
 ## [1.0.0] - 2018-09-24
 ###

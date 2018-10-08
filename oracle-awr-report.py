@@ -11,6 +11,7 @@ import getpass
 from datetime import date
 from xlsxwriter.utility import xl_rowcol_to_cell
 
+
 # __all__
 
 
@@ -27,7 +28,7 @@ v_begin_snap = int()
 v_end_snap = int()
 v_log_level = 30
 v_current_chart_id = 0
-# 
+#
 v_column_title = []
 v_conf = []
 v_chart_conf = []
@@ -70,14 +71,14 @@ def add_chart_to_xlsx(v_d_worksheet_title, v_d_chart_title, v_d_title, v_d_data)
     v_count_snap = len(v_d_data)
 
     # adding data to charts, column by column
-    for col_i in range(2, len(v_d_title)):
+    for d_i in range(2, len(v_d_title)):
         v_d_chart.add_series({
-            'name': v_d_title[col_i],
+            'name': v_d_title[d_i],
             'categories': '=' + v_d_worksheet_title + '!$A$2:$A$' + str(v_count_snap+1),
             'values': '=' + v_d_worksheet_title + '!' +
-                      xl_rowcol_to_cell(1, col_i, row_abs=True, col_abs=True) +
+                      xl_rowcol_to_cell(1, d_i, row_abs=True, col_abs=True) +
                       ':' +
-                      xl_rowcol_to_cell(v_count_snap, col_i, row_abs=True, col_abs=True),
+                      xl_rowcol_to_cell(v_count_snap, d_i, row_abs=True, col_abs=True),
             'line': {'width': 1, 'dash_type': 'solid'}
              })
 
@@ -128,6 +129,7 @@ def add_chart_to_xlsx(v_d_worksheet_title, v_d_chart_title, v_d_title, v_d_data)
 # ==================================================================
 # ==================================================================
 
+
 os.environ["NLS_LANG"] = "AMERICAN_AMERICA.AL32UTF8"
 
 # ==================================================================
@@ -139,7 +141,10 @@ logging.basicConfig(level=logging.WARNING,
 
 try:
     # try to open main configuration file
-    v_config_file = open("conf.d/general.conf")
+    if sys.version_info.major >= 3:
+        v_config_file = open("conf.d/general.conf", encoding="utf_8")
+    if sys.version_info.major == 2:
+        v_config_file = open("conf.d/general.conf")
 except OSError as err:
     logging.error("OS error: {0}".format(err))
     raise
@@ -181,6 +186,7 @@ if not v_configuration.get("PASSWORD"):
 # ==================================================================
 # parsing of configuration file "general.conf" END
 # ==================================================================
+
 
 # connecting to database
 try:
@@ -266,11 +272,11 @@ v_db_connection.module = "excell_making"
 # creating xls file
 if len(v_configuration["DB_NAME"]) == 0:
     v_workbook = xlsxwriter.Workbook(v_prefix +
-                                     "report_" + date.today().strftime("%Y%m%d") + ".xls",  {'constant_memory': True})
+                                     "report_" + date.today().strftime("%Y%m%d") + ".xlsx",  {'constant_memory': True})
 else:
     v_workbook = xlsxwriter.Workbook(v_prefix +
                                      v_configuration["DB_NAME"] + "_" + date.today().strftime("%Y%m%d") +
-                                     ".xls",  {'constant_memory': True})
+                                     ".xlsx",  {'constant_memory': True})
 if not v_configuration.get("AUTHOR"):
     v_conf_author = 'unknown'
 else:
@@ -311,7 +317,10 @@ else:
 
 try:
     # open report configuration file
-    v_config_file = open(v_configuration["REPORT_CONF"])
+    if sys.version_info.major >= 3:
+        v_config_file = open(v_configuration["REPORT_CONF"], encoding="utf_8")
+    if sys.version_info.major == 2:
+        v_config_file = open(v_configuration["REPORT_CONF"])
 except OSError as err:
     v_logger.error("OS error: {0}".format(err))
     raise
@@ -339,7 +348,10 @@ for i in v_conf:
         v_worksheet_name = os.path.splitext(i[1])[0]
 
         # read query from file
-        v_sql_source = open("sql/" + i[1], 'r')
+        if sys.version_info.major >= 3:
+            v_sql_source = open("sql/" + i[1], 'r', encoding="utf_8")
+        if sys.version_info.major == 2:
+            v_sql_source = open("sql/" + i[1], 'r')
         v_sql_block = v_sql_source.read()
         v_sql_source.close()
 
@@ -376,7 +388,10 @@ for i in v_conf:
             try:
                 # open calculating columns configuration file
                 v_logger.debug('Trying to open column config file: ' + i[4])
-                v_config_file = open(i[4])
+                if sys.version_info.major >= 3:
+                    v_config_file = open(i[4], encoding="utf_8")
+                if sys.version_info.major == 2:
+                    v_config_file = open(i[4])
             except OSError as err:
                 v_logger.error("OS error: {0}".format(err))
                 raise
@@ -429,7 +444,10 @@ for i in v_conf:
             try:
                 # open config file for custom charts
                 v_logger.debug('Trying to open charts config file: ' + i[3])
-                v_config_file = open(i[3])
+                if sys.version_info.major >= 3:
+                    v_config_file = open(i[3], encoding="utf_8")
+                if sys.version_info.major == 2:
+                    v_config_file = open(i[3])
             except OSError as err:
                 v_logger.error("OS error: {0}".format(err))
                 raise
@@ -495,32 +513,41 @@ for i in v_conf:
                     })
 
                     # main charts parameters
-                    v_chart.set_legend({'position': 'top',
-                                        #'border': 'none',
-                                         'font': {'name': 'Arial','size': 9},
-                                         'layout': {'x': 0.5, 'y': 0.04,
-                                                   'width': 0.3,
-                                                   'height': 0.1
-                                                  }
+                    v_chart.set_legend({
+                        'position': 'top',
+                        'font': {'name': 'Arial', 'size': 9},
+                        'layout': {
+                            'x': 0.5,
+                            'y': 0.04,
+                            'width': 0.3,
+                            'height': 0.1
+                        }
                     })
                     if sys.version_info.major >= 3:
                         v_chart.set_title({
                             'name': v_chart_title,
-                            'name_font': {'name': 'Arial', 'color': 'black', 'size': 9},
+                            'name_font': {
+                                'name': 'Arial',
+                                'color': 'black',
+                                'size': 9
+                            },
                             'overlay': ~True,
-                            'layout': {'x': 0.1, 'y': 0.1,
-                                       # 'width': 0.2,
-                                       # 'height': 0.1
-                                       }
+                            'layout': {
+                                'x': 0.1,
+                                'y': 0.1,
+                            }
                         })
                     if sys.version_info.major == 2:
                         v_chart.set_title({
                             'name': v_chart_title.decode('utf8'),
-                            'name_font': {'name': 'Arial','color': 'black','size': 9},
-                            'overlay':~True,
-                            'layout': {'x': 0.1, 'y': 0.1,
-                                       #'width': 0.2,
-                                       #'height': 0.1
+                            'name_font': {
+                                'name': 'Arial',
+                                'color': 'black',
+                                'size': 9},
+                            'overlay': ~True,
+                            'layout': {
+                                'x': 0.1,
+                                'y': 0.1,
                                       }
                         })
 
@@ -528,17 +555,24 @@ for i in v_conf:
                         'date_axis': True,
                         'name_font': {
                             'name': 'Arial',
-                            'color': 'black', 'size': 9
+                            'color': 'black',
+                            'size': 9
                         },
                         'num_font': {
                             'name': 'Arial',
-                            'color': 'black', 'size': 9, 'rotation': -90
+                            'color': 'black',
+                            'size': 9,
+                            'rotation': -90
                         },
                     })
 
                     v_chart.set_y_axis({
                         'num_format': '#,###',
-                        'num_font': {'name': 'Arial', 'color': 'black', 'size': 9},
+                        'num_font': {
+                            'name': 'Arial',
+                            'color': 'black',
+                            'size': 9
+                        },
                         'name_font': {
                             'name': 'Arial',
                             'color': 'black',
