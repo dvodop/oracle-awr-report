@@ -6,6 +6,7 @@ import sys
 import cx_Oracle
 import xlsxwriter
 import logging
+import getpass
 
 from datetime import date
 from xlsxwriter.utility import xl_rowcol_to_cell
@@ -171,6 +172,11 @@ v_logger.setLevel(v_log_level)
 
 if v_configuration.get("PREFIX"):
     v_prefix = v_configuration["PREFIX"]
+
+# If we have not password in config file - ask it from command line
+if not v_configuration.get("PASSWORD"):
+    print("Please, enter password for Database")
+    v_configuration["PASSWORD"] = getpass.getpass('Password:')
 
 # ==================================================================
 # parsing of configuration file "general.conf" END

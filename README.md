@@ -36,7 +36,7 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm)
 | SID            | database SID                                             | +-        | +
 | SERVICE_NAME   | database SERVICE_NAME                                    | +-        | +
 | USERNAME       | database login                            		    | +         | +
-| PASSWORD       | database password                        		    | +         | +
+| PASSWORD       | database password                        		    | -         | +
 | DBID		 | database id						    | -         | +
 | BEGIN_SNAP     | awr begin snap_id  			                    | -         | +
 | END_SNAP       | awr end snap_id                 		            | -         | +
@@ -49,6 +49,7 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm)
 
 * When TNS_ALIAS exist, we using it. Otherwise we using HOST, PORT and SID/SERVICE_NAME
 * When SID exist, we using it. Otherwise we using SERVICE_NAME
+* When PASSWORD not present in general.conf, reading it from input
 
 ## Report configuration file
 Format:
