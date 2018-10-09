@@ -7,6 +7,7 @@ import cx_Oracle
 import xlsxwriter
 import logging
 import getpass
+import argparse
 
 from datetime import date
 from xlsxwriter.utility import xl_rowcol_to_cell
@@ -131,60 +132,176 @@ def add_chart_to_xlsx(v_d_worksheet_title, v_d_chart_title, v_d_title, v_d_data)
 
 
 os.environ["NLS_LANG"] = "AMERICAN_AMERICA.AL32UTF8"
+# ==================================================================
+# parsing of main configuration file
+# and command line arguments BEGIN
+# ==================================================================
+# add command line arguments for argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--author',
+                    help='Report Author'
+                    )
+parser.add_argument('--begin_snap',
+                    type=int,
+                    help='For AWR: start snap_id'
+                    )
+parser.add_argument('--company',
+                    help='Report Company'
+                    )
+parser.add_argument('--db_name',
+                    help='Database name, printed in report'
+                    )
+parser.add_argument('--dbid',
+                    type=int,
+                    help='For AWR: database dbid'
+                    )
+parser.add_argument('--end_snap',
+                    type=int, help='For AWR: end snap_id'
+                    )
+parser.add_argument('--general_conf',
+                    help='Path to main configuration file. If set in NONE, don' + "'" + 't use configuration file.'
+                    )
+parser.add_argument('--host',
+                    help='Database host address'
+                    )
+parser.add_argument('--logging',
+                    help='Logging level. Can be one of DEBUG/INFO/WARNING/ERROR/CRITICAL'
+                    )
+parser.add_argument('--password',
+                    help='Database password'
+                    )
+parser.add_argument('--port',
+                    type=int, help='Database port'
+                    )
+parser.add_argument('--prefix',
+                    help='Path to report'
+                    )
+parser.add_argument('--report_conf',
+                    help='Path to report configration file'
+                    )
+parser.add_argument('--service_name',
+                    help='Database SERVICE_NAME.'
+                    )
+parser.add_argument('--sid',
+                    help='Database SID. If not set - use service_name'
+                    )
+parser.add_argument('--tnsalias',
+                    metavar='TNS_ALIAS',
+                    help='tnslias for db connection. If not set - use host, port, sid/service_name'
+                    )
+parser.add_argument('--username',
+                    help='Database username'
+                    )
 
-# ==================================================================
-# parsing of configuration file "general.conf" BEGIN
-# ==================================================================
+# parse command line arguments
+args = parser.parse_args()
+
+# check GENERAL_CONF argument
+if args.general_conf:
+    v_configuration["GENERAL_CONF"] = args.general_conf
+else:
+    v_configuration["GENERAL_CONF"] = "conf.d/general.conf"
+
 # default logging parameters
 logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s %(levelname)s %(message)s')
 
-try:
-    # try to open main configuration file
-    if sys.version_info.major >= 3:
-        v_config_file = open("conf.d/general.conf", encoding="utf_8")
-    if sys.version_info.major == 2:
-        v_config_file = open("conf.d/general.conf")
-except OSError as err:
-    logging.error("OS error: {0}".format(err))
-    raise
-except Exception:
-    logging.error("Unexpected error:", sys.exc_info()[0])
-    raise
-# for all rows in file
-for v_text_string in v_config_file.readlines():
-    # if row is not empty and don't start from #
-    if not v_text_string.startswith("\n") and not v_text_string.startswith("#"):
-        v_parameter_name, v_parameter_value = v_text_string.split('=')
-        v_configuration[v_parameter_name] = v_parameter_value.replace("\n", "").replace("\"", "")
-v_config_file.close()
+# if using GENERAL_CONF, open it and parse
+if v_configuration.get("GENERAL_CONF") and v_configuration["GENERAL_CONF"] != "NONE":
+    try:
+        # try to open main configuration file
+        if sys.version_info.major >= 3:
+            v_config_file = open(v_configuration["GENERAL_CONF"], encoding="utf_8")
+        if sys.version_info.major == 2:
+            v_config_file = open(v_configuration["GENERAL_CONF"])
+    except OSError as err:
+        logging.critical("OS error: {0}".format(err))
+        raise
+    except Exception:
+        logging.critical("Unexpected error:", sys.exc_info()[0])
+        raise
+    # for all rows in file
+    for v_text_string in v_config_file.readlines():
+        # if row is not empty and don't start from #
+        if not v_text_string.startswith("\n") and not v_text_string.startswith("#"):
+            v_parameter_name, v_parameter_value = v_text_string.split('=')
+            v_configuration[v_parameter_name] = v_parameter_value.replace("\r", "").replace("\n", "").replace("\"", "")
+
+# early-using arguments
+if args.logging:
+    v_configuration["LOGGING"] = args.logging
+if args.prefix:
+    v_configuration["PREFIX"] = args.prefix
+if args.password:
+    v_configuration["PASSWORD"] = args.password
 
 # LOGGING
 v_logger = logging.getLogger()
 if not v_configuration.get("LOGGING"):
     v_log_level = 30
-elif v_configuration["LOGGING"] == "DEBUG":
+elif v_configuration["LOGGING"].upper() == "DEBUG":
     v_log_level = 10
-elif v_configuration["LOGGING"] == "INFO":
+elif v_configuration["LOGGING"].upper() == "INFO":
     v_log_level = 20
-elif v_configuration["LOGGING"] == "WARNING":
+elif v_configuration["LOGGING"].upper() == "WARNING":
     v_log_level = 30
-elif v_configuration["LOGGING"] == "ERROR":
+elif v_configuration["LOGGING"].upper() == "ERROR":
     v_log_level = 40
-elif v_configuration["LOGGING"] == "CRITICAL":
+elif v_configuration["LOGGING"].upper() == "CRITICAL":
     v_log_level = 50
 v_logger.setLevel(v_log_level)
 
 if v_configuration.get("PREFIX"):
     v_prefix = v_configuration["PREFIX"]
 
-# If we have not password in config file - ask it from command line
+# save command line arguments to configuration parameters
+if args.author:
+    v_configuration["AUTHOR"] = args.author
+if args.begin_snap:
+    v_configuration["BEGIN_SNAP"] = args.begin_snap
+if args.company:
+    v_configuration["COMPANY"] = args.company
+if args.db_name:
+    v_configuration["DB_NAME"] = args.db_name
+if args.dbid:
+    v_configuration["DBID"] = args.dbid
+if args.end_snap:
+    v_configuration["END_SNAP"] = args.end_snap
+if args.host:
+    v_configuration["HOST"] = args.host
+if args.port:
+    v_configuration["PORT"] = args.port
+if args.report_conf:
+    v_configuration["REPORT_CONF"] = args.report_conf
+if args.service_name:
+    v_configuration["SERVICE_NAME"] = args.service_name
+if args.sid:
+    v_configuration["SID"] = args.sid
+if args.tnsalias:
+    v_configuration["TNS_ALIAS"] = args.tnsalias
+if args.username:
+    v_configuration["USERNAME"] = args.username
+
+if not v_configuration.get("DB_NAME"):
+    v_configuration["DB_NAME"] = ""
+
+# check mandatory parameters
+if not v_configuration.get("TNS_ALIAS") and not v_configuration.get("HOST") and not (v_configuration.get("SID") or v_configuration.get("SERVICE_NAME")):
+    v_logger.error("Not set database access parameters! Use TNS_ALIAS or HOST, SID/SERVICE_NAME parameters!")
+    exit(1)
+if not v_configuration.get("USERNAME"):
+    v_logger.error("Not set database username! Use USERNAME parameter!")
+    exit(1)
+if not v_configuration.get("REPORT_CONF"):
+    v_logger.error("Not set path to report configuration file. Use REPORT_CONF!")
+    exit(1)
+# If we have not password - ask it from command line
 if not v_configuration.get("PASSWORD"):
     print("Please, enter password for Database")
     v_configuration["PASSWORD"] = getpass.getpass('Password:')
-
 # ==================================================================
-# parsing of configuration file "general.conf" END
+# parsing of main configuration file
+# and command line arguments END
 # ==================================================================
 
 
@@ -330,7 +447,7 @@ except Exception:
 
 for v_line in v_config_file.readlines():
     if not v_line.startswith("\n") and not v_line.startswith("#"):
-        v = v_line.replace("\n", "")
+        v = v_line.replace("\r", "").replace("\n", "")
         v_conf.append(v.split(":"))
 
 v_config_file.close()
@@ -402,7 +519,7 @@ for i in v_conf:
             # read config
             for v_line in v_config_file.readlines():
                 if not v_line.startswith("\n") and not v_line.startswith("#"):
-                    v_text_string = v_line.replace("\n", "")
+                    v_text_string = v_line.replace("\r", "").replace("\n", "")
                     v_column_conf.append(v_text_string.split(":"))
             v_config_file.close()
             v_logger.debug('Successfully read column config file ' + i[4])
@@ -458,7 +575,7 @@ for i in v_conf:
             # read config
             for v_line in v_config_file.readlines():
                 if not v_line.startswith("\n") and not v_line.startswith("#"):
-                    v_text_string = v_line.replace("\n", "")
+                    v_text_string = v_line.replace("\r", "").replace("\n", "")
                     v_chart_conf.append(v_text_string.split(":"))
             v_config_file.close()
             v_logger.debug('Successfully read chart config file ' + i[3])

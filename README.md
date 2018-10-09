@@ -27,6 +27,58 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm)
   * cx_Oracle 6.3.1 
   * xlsxwriter 1.0.5
 
+# Usage
+
+** Minimal run with cli arguments:
+```
+$ python3 oracle-awr-report.py --host test1.exampledomain.loc --service_name testdb1 --general_conf NONE --username cade --report_conf conf.d/report.conf 
+```
+** Run with main configuration file:
+```
+$ python3 oracle-awr-report.py
+```
+
+## Command line arguments
+```
+$ python oracle-awr-report.py -h
+usage: oracle-awr-report.py [-h] [--author AUTHOR] [--begin_snap BEGIN_SNAP]
+                            [--company COMPANY] [--db_name DB_NAME]
+                            [--dbid DBID] [--end_snap END_SNAP]
+                            [--general_conf GENERAL_CONF] [--host HOST]
+                            [--logging LOGGING] [--password PASSWORD]
+                            [--port PORT] [--prefix PREFIX]
+                            [--report_conf REPORT_CONF]
+                            [--service_name SERVICE_NAME] [--sid SID]
+                            [--tnsalias TNS_ALIAS] [--username USERNAME]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --author AUTHOR       Report Author
+  --begin_snap BEGIN_SNAP
+                        For AWR: start snap_id
+  --company COMPANY     Report Company
+  --db_name DB_NAME     Database name, printed in report
+  --dbid DBID           For AWR: database dbid
+  --end_snap END_SNAP   For AWR: end snap_id
+  --general_conf GENERAL_CONF
+                        Path to main configuration file. If set in NONE, don't
+                        use configuration file.
+  --host HOST           Database host address
+  --logging LOGGING     Logging level. Can be one of
+                        DEBUG/INFO/WARNING/ERROR/CRITICAL
+  --password PASSWORD   Database password
+  --port PORT           Database port
+  --prefix PREFIX       Path to report
+  --report_conf REPORT_CONF
+                        Path to report configration file
+  --service_name SERVICE_NAME
+                        Database SERVICE_NAME.
+  --sid SID             Database SID. If not set - use service_name
+  --tnsalias TNS_ALIAS  tnslias for db connection. If not set - use host,
+                        port, sid/service_name
+  --username USERNAME   Database username
+```
+
 ## Main configuration **conf.d/general.conf**
 _All config files openes with utf-8 encoding_
 
@@ -43,7 +95,7 @@ _All config files openes with utf-8 encoding_
 | BEGIN_SNAP     | awr begin snap_id  			                    | -         | +
 | END_SNAP       | awr end snap_id                 		            | -         | +
 | PREFIX         | path to report file                  		    | -         | -
-| DB_NAME        | database title     			                    | +         | -
+| DB_NAME        | database title     			                    | -         | -
 | AUTHOR         | report author                            		    | -         | -
 | COMPANY        | report company            		                    | -         | -
 | LOGGING        | log level, one of: DEBUG, INFO, WARNING, ERROR, CRITICAL | -         | +
@@ -65,8 +117,8 @@ where chart config file is one of following:
 
 Example:
 ```
-1:RDBMSServiceTime.sql:Database Service Time Stucture:default
-2:WaitTimeStructure.sql:Database Wait Time Structure:default
+1:RDBMSServiceTime.sql:Стр-ра сервисного времени субд:default
+2:WaitTimeStructure.sql:Стр-ра времени ожиданий субд:default
 3:RedoStat.sql::conf.d/redostat.conf
 ```
 
@@ -103,3 +155,5 @@ Example:
 
 ## Report worksheet example
 ![DB wait time structure](DOC/oracle-awr-report.png)
+
+Added GPG sing to commits

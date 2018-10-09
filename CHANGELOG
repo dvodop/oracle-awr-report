@@ -3,12 +3,16 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 ### Changed
+
+## [1.0.1] - 2018.10.09
+### Changed
 - added date to workbook file name
 - added dbname to custom charts titles
 - fixed bug in DEBUG logging
 - added configuration parameters HOST,PORT,SID,SERVICE_NAME as an alternative to TNS_ALIAS
 - added reading password from command line, when it not preset in config file
 - fixed opening config files with utf-8 encoding
+- added command line arguments support
 
 ## [1.0.0] - 2018-09-24
 ###
