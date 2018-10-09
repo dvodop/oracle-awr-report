@@ -29,11 +29,11 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm)
 
 # Usage
 
-** Minimal run with cli arguments:
+** Minimal run with cli arguments: **
 ```
 $ python3 oracle-awr-report.py --host test1.exampledomain.loc --service_name testdb1 --general_conf NONE --username cade --report_conf conf.d/report.conf 
 ```
-** Run with main configuration file:
+** Run with main configuration file: **
 ```
 $ python3 oracle-awr-report.py
 ```
