@@ -155,5 +155,3 @@ Example:
 
 ## Report worksheet example
 ![DB wait time structure](DOC/oracle-awr-report.png)
-
-Added GPG sing to commits
