@@ -286,7 +286,9 @@ if not v_configuration.get("DB_NAME"):
     v_configuration["DB_NAME"] = ""
 
 # check mandatory parameters
-if not v_configuration.get("TNS_ALIAS") and not v_configuration.get("HOST") and not (v_configuration.get("SID") or v_configuration.get("SERVICE_NAME")):
+if not v_configuration.get("TNS_ALIAS")\
+        and not v_configuration.get("HOST")\
+        and not (v_configuration.get("SID") or v_configuration.get("SERVICE_NAME")):
     v_logger.error("Not set database access parameters! Use TNS_ALIAS or HOST, SID/SERVICE_NAME parameters!")
     exit(1)
 if not v_configuration.get("USERNAME"):
@@ -328,7 +330,7 @@ try:
 
         v_configuration["TNS_ALIAS"] = v_dsn
 
-    if v_configuration["USERNAME"] == "SYS":
+    if v_configuration["USERNAME"].upper() == "SYS":
         v_db_connection = cx_Oracle.connect(v_configuration["USERNAME"] + "/" +
                                             v_configuration["PASSWORD"] + "@" +
                                             v_configuration["TNS_ALIAS"], mode=cx_Oracle.SYSDBA)
