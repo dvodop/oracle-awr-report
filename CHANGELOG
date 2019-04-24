@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 ## [unreleased]
 ### Changed
 
+## [1.1.0] - 2019.04.24
+### Changed
+- added plugin support
+- added SSH plugin
+- added shell script atop_parser.sh for gather atop data
+- added scatter charts support for custom charts
+- removed command line arguments support
+
 ## [1.0.1] - 2018.10.09
 ### Changed
 - added date to workbook file name
