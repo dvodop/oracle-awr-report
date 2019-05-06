@@ -114,7 +114,7 @@ lst = os.listdir("plugins")
 #logging.debug(v_files)
 
 for file in lst:
-    if "__" not in file and file != "plugin_xlsx.py" and file != "plugin_report_conf.py":
+    if "__" not in file and file != "plugin_xlsx.py" and file != "plugin_report_conf.py" and file.endswith(".py"):
         # module_name = file[:-3]
         # import_module("plugins." + module_name, '*')
          module_name = file.split('.')[0]
