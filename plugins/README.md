@@ -46,3 +46,5 @@ def PLUGINNAME_gather_data(l_configuration, l_logger, l_config_line, l_workbook,
 
     return l_title, l_data
 ```
+
+Note: first column in l_data don't use in default chart drawing!
