@@ -58,7 +58,10 @@ def ssh_gather_data(l_configuration, l_logger, l_config_line, l_workbook, l_work
 
     if l_configuration.get("SSH_KEY") and not l_configuration.get("SSH_PASSWORD"):
         l_logger.info("Plugin [" + l_plugin + "]. Loading private key file: [" + str(l_configuration["SSH_KEY"]) + "]")
-        ssh_key = paramiko.RSAKey.from_private_key_file(l_configuration["SSH_KEY"])
+        if l_configuration.get("SSH_KEY_PASSPHRASE"):
+            ssh_key = paramiko.RSAKey.from_private_key_file(l_configuration["SSH_KEY"], password=l_configuration["SSH_KEY_PASSPHRASE"])
+        else:
+            ssh_key = paramiko.RSAKey.from_private_key_file(l_configuration["SSH_KEY"])
         ssh_connect.connect(l_configuration["HOST"], username=l_configuration["SSH_USERNAME"], pkey=ssh_key)
     elif l_configuration.get("SSH_PASSWORD") and not l_configuration.get("SSH_KEY"):
         l_logger.info("Plugin [" + l_plugin + "]. Using password connection")
@@ -67,7 +70,10 @@ def ssh_gather_data(l_configuration, l_logger, l_config_line, l_workbook, l_work
         l_logger.info("Plugin [" + l_plugin + "]. Loading private key file: ["
                       + str(l_configuration["SSH_KEY"]) + "]"
                       + ". Using password connection")
-        ssh_key = paramiko.RSAKey.from_private_key_file(l_configuration["SSH_KEY"])
+        if l_configuration.get("SSH_KEY_PASSPHRASE"):
+            ssh_key = paramiko.RSAKey.from_private_key_file(l_configuration["SSH_KEY"], password=l_configuration["SSH_KEY_PASSPHRASE"])
+        else:
+            ssh_key = paramiko.RSAKey.from_private_key_file(l_configuration["SSH_KEY"])
         ssh_connect.connect(l_configuration["HOST"], username=l_configuration["SSH_USERNAME"], password=str(l_configuration["SSH_PASSWORD"]), pkey=ssh_key)
 
     scp_connect = scp.SCPClient(ssh_connect.get_transport())
