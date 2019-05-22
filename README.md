@@ -10,7 +10,7 @@ oracle-awr-report.py is easy-to-use data exporter from different data sources (O
 AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm)
 
 # Prerequisite
-* python
+* python3
 * cx_Oracle
 * xlswriter
 * paramiko
