@@ -33,7 +33,7 @@ select
        RW_BROADCAST_LGWR_POST_COUNT,
        RW_TIME,
        R_WRITES,
-       r_synch_time/r_synch_writes as redo_sync_wr_latency
+       r_synch_time/r_synch_writes*10 as redo_sync_wr_latency_ms
   from (with local_data as (select --Trunc(S.BEGIN_INTERVAL_TIME,'HH24')                 as snap_time,
                                           to_char(S.BEGIN_INTERVAL_TIME,'dd.mm.yyyy hh24:mi') as snap_time,
                                           --S.BEGIN_INTERVAL_TIME                               as snap_time,
