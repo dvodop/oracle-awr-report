@@ -31,12 +31,16 @@ START_TIME=`date +%Y%m%d_%H%M`
 LOG_LEVEL=30
 
 DSK=0
+LVM=0
 CPU=0
 SWAP=0
 #PAG=0
 RAM=0
+USERPARSER=0
 declare -a DSK_NAMES
 declare -a DSK_LOGS
+declare -a LVM_NAMES
+declare -a LVM_LOGS
 
 ################################################################################################################################################
  #	Output functions
@@ -86,10 +90,12 @@ echo_usage() {
 								 INFO
 								 DEBUG
 		--dsk		block device name	Parse atop logs for block device
+		--lvm		lvol name			Parse atop logs for logical volume
 		--cpu					Parse atop logs for CPU
 		--swap					Parse atop logs for swap
 		--ram					Parse atop logs for RAM
-	Note: supported RHEL6/OEL6;RHEL7/OEL7
+		--user		username		Parse atop logs for RAM/CPU usage of user username
+	Note: supported only RHEL6/OEL6 (RHEL7/OEL7 not tested; RHEL5/OEL5 not supported; Debian not supported)
 "
 #		--pag					Parse atop logs for PAG (paging frequency)
 }
@@ -151,9 +157,18 @@ do
 			DSK=1
 			DSK_NAMES+=("$2")
 			DSK_LOGS+=("/tmp/atop_parser_DSK_$2_${START_TIME}_${CURRENT_PID}.log")
-			LAST=${#DSK_NAMES[@]}
-			LAST=$((LAST - 1 ))
-#			echo "unixtime device read write avq avio" > ${DSK_LOGS[$LAST]}
+			LAST_DSK=${#DSK_NAMES[@]}
+			LAST_DSK=$((LAST_DSK - 1 ))
+#			echo "unixtime device read write avq avio" > ${DSK_LOGS[$LAST_DSK]}
+			shift 2
+		;;
+		"--lvm")
+			LVM=1
+			LVM_NAMES+=("$2")
+			LVM_LOGS+=("/tmp/atop_parser_LVM_$2_${START_TIME}_${CURRENT_PID}.log")
+			LAST_LVM=${#LVM_NAMES[@]}
+			LAST_LVM=$((LAST_LVM - 1 ))
+#			echo "unixtime device read write avq avio" > ${LVM_LOGS[$LAST_LVM]}
 			shift 2
 		;;
 		"--cpu")
@@ -179,6 +194,12 @@ do
 			RAM_LOG="/tmp/atop_parser_MEM_${START_TIME}_${CURRENT_PID}.log"
 			shift
 		;;
+		"--user")
+			USERPARSER=1
+			USERNAME=$2
+			USER_LOG="/tmp/atop_parser_USER_${START_TIME}_${CURRENT_PID}.log"
+			shift 2
+		;;
 		*)
 			echo_error $LOG_LEVEL "Unknown parameter [$1]"
 			echo_usage
@@ -194,8 +215,16 @@ then
 	then
 		for i in ${!DSK_NAMES[@]}
 		do
-			echo "unixtime read write avq avio" > ${DSK_LOGS[$LAST]}
-			echo_warn $LOG_LEVEL "Log file for DSK $2 is [${DSK_LOGS[$LAST]}]"
+			echo "unixtime read write avq avio" > ${DSK_LOGS[$LAST_DSK]}
+			echo_warn $LOG_LEVEL "Log file for DSK $2 is [${DSK_LOGS[$LAST_DSK]}]"
+		done
+	fi
+	if [ $LVM -eq 1 ]
+	then
+		for i in ${!LVM_NAMES[@]}
+		do
+			echo "unixtime read write avq avio" > ${LVM_LOGS[$LAST_DSK]}
+			echo_warn $LOG_LEVEL "Log file for LVM $2 is [${LVM_LOGS[$LAST_DSK]}]"
 		done
 	fi
 	if [ $CPU -eq 1 ]
@@ -224,6 +253,39 @@ fi
 for file in /var/log/atop/atop_*; do
 	[ -e "$file" ] || continue
 	echo_debug $LOG_LEVEL "parsing [$file]"
+	if [ $USERPARSER -eq 1 ]
+	then
+		DEVICE="CPU"
+		TEMP_FILE="/tmp/atop_parser_${DEVICE}_${START_TIME}_${CURRENT_PID}.temp"
+		USER_TEMP_LOG="${TEMP_FILE}.log"
+		atop_parse_device $DEVICE $file $TEMP_FILE
+		while read -r LINE
+		do
+			v_unixtime=`echo $LINE | awk '{print $1}'`
+			v_time=`echo $LINE | awk '{print $2}'`
+			/usr/bin/atop -l -r $file -b $v_time -L 160 -u | head -n 40 |  grep $USERNAME | awk -v ut=$v_unixtime ' { print ut" "$4" "$5" "$10 } ' | sed 's/%//g' >> $USER_TEMP_LOG
+		done < $TEMP_FILE
+		rm -f $TEMP_FILE
+		awk ' {
+if ( $2 ~ '/G/' ) {
+    gsub("G","",$2)
+    $2=$2*1024*1024/4
+}
+if ( $2 ~ '/M/' ) {
+    gsub("M","",$2)
+    $2=$2*1024/4
+}
+if ( $3 ~ '/G/' ) {
+    gsub("G","",$3)
+    $3=$3*1024*1024/4
+}
+if ( $3 ~ '/M/' ) {
+    gsub("M","",$3)
+    $3=$3*1024/4
+}
+printf "%s %8.1f %8.1f %8.1f\n", $1, $2, $3, $4 } ' $USER_TEMP_LOG >> $USER_LOG
+		rm -f $USER_TEMP_LOG
+	fi
 	if [ $DSK -eq 1 ]
 	then
 		DEVICE="DSK"
@@ -242,7 +304,24 @@ for file in /var/log/atop/atop_*; do
 		done
 		rm -f $TEMP_FILE
 	fi
-
+	if [ $LVM -eq 1 ]
+	then
+		DEVICE="LVM"
+		TEMP_FILE="/tmp/atop_parser_${DEVICE}_${START_TIME}_${CURRENT_PID}.temp"
+		atop_parse_device $DEVICE $file $TEMP_FILE
+		for i in ${!LVM_NAMES[@]}
+		do
+			DEVICE_NAME=${LVM_NAMES[$i]}
+			while read -r LINE
+			do
+				v_unixtime=`echo $LINE | awk '{print $1}'`
+				v_time=`echo $LINE | awk '{print $2}'`
+#				echo "q" | /usr/bin/atop -l -r $file -b $v_time -L 160 | head -n 20 | egrep "^LVM .*" | egrep "$DEVICE_NAME" | awk -F "|" '{print $2" "$4" "$5" "$10" "$11}' | awk -v ut=$v_unixtime '{print ut" "$1" "$3" "$5" "$7" "$9}' >> ${LVM_LOGS[$i]}
+				echo "q" | /usr/bin/atop -l -r $file -b $v_time -L 160 | head -n 20 | egrep "^LVM .*" | egrep "$DEVICE_NAME" | awk -F "|" '{print $2" "$4" "$5" "$10" "$11}' | awk -v ut=$v_unixtime '{print ut" "$3" "$5" "$7" "$9}' >> ${LVM_LOGS[$i]}
+			done < $TEMP_FILE
+		done
+		rm -f $TEMP_FILE
+	fi
 	if [ $CPU -eq 1 ]
 	then
 		DEVICE="CPU"
@@ -366,7 +445,14 @@ then
 	then
 		for i in ${!DSK_NAMES[@]}
 		do
-			echo "${DSK_LOGS[$LAST]} unixtime read write avq avio"
+			echo "${DSK_LOGS[$LAST_DSK]} unixtime read write avq avio"
+		done
+	fi
+	if [ $LVM -eq 1 ]
+	then
+		for i in ${!LVM_NAMES[@]}
+		do
+			echo "${LVM_LOGS[$LAST_LVM]} unixtime read write avq avio"
 		done
 	fi
 	if [ $CPU -eq 1 ]
@@ -380,6 +466,10 @@ then
 	if [ $SWAP -eq 1 ]
 	then
 		echo "$SWAP_LOG unixtime total free vmcom vmlim"
+	fi
+	if [ $USERPARSER -eq 1 ]
+	then
+		echo "$USER_LOG unixtime vsize rsize cpu"
 	fi
 fi
 

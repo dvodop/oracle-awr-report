@@ -112,3 +112,5 @@ So, first column in data file must be unixtimestamp!
 # ATOP
 For gathering atop data from host prepared shell script **atop_parser.sh**. It work with atop log files /var/log/atop/atop_* created with interval=600 seconds
 
+***Note:** atop device name (in atop lvm statistic) has 12 chars length, so in long lvm names you should use, as parameter of lvm name for atop_parser.sh, tail of logical volume name*
+

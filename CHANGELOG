@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 - fixed RedoStat query
 - fixed atop dsk columns config
 - improved logging
+- added atop_parser.sh lvm support
+- added atop_parser.sh per user cpu/memory statistic support
 
 ## [1.1.0] - 2019.04.24
 ### Changed
