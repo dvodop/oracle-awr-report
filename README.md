@@ -15,11 +15,13 @@ AWR SQL queries by [MaksimIvanovPerm](https://github.com/MaksimIvanovPerm)
 * xlswriter
 * paramiko
 * scp
+* logging
+* coloredlogs
 
 # Usage
 
 ```
-$ python oracle-awr-report.py 
+$ python3 oracle-awr-report.py 
 ```
 
 ## Main configuration **conf.d/general.conf**

@@ -2,6 +2,7 @@
 import os
 import sys
 import xlsxwriter
+import logging
 
 from xlsxwriter.utility import xl_rowcol_to_cell
 
@@ -36,6 +37,9 @@ def default_write_to_the_worksheet(l_configuration, l_logger, l_config_line, l_w
     l_chart_title,\
     l_chart_conf_file,\
     l_columns_conf_file = parse_report_conf_line(l_configuration, l_logger, l_config_line, l_workbook, l_worksheet)
+
+    l_logger = logging.getLogger('oracle-awr-report.plugin_xlsx')
+    
     d_row_i = 0
     d_col_i = 0
     # fille columns title

@@ -4,6 +4,7 @@
 import os
 import sys
 import logging
+import coloredlogs
 import xlsxwriter
 
 from datetime import date
@@ -44,7 +45,7 @@ os.environ["NLS_LANG"] = "AMERICAN_AMERICA.AL32UTF8"
 v_configuration["GENERAL_CONF"] = "conf.d/general.conf"
 
 logging.basicConfig(level=logging.WARNING,
-                    format='%(asctime)s %(levelname)s %(message)s')
+                    format='%(asctime)s %(hostname)s %(name)s[%(process)d] %(levelname)s %(message)s')
 
 # if using GENERAL_CONF, open it and parse
 if v_configuration.get("GENERAL_CONF"):
@@ -68,7 +69,7 @@ if v_configuration.get("GENERAL_CONF"):
             v_configuration[v_parameter_name] = v_parameter_value.replace("\r", "").replace("\n", "").replace("\"", "")
 
 # LOGGING
-v_logger = logging.getLogger()
+v_logger = logging.getLogger("oracle-awr-export")
 if not v_configuration.get("LOGGING"):
     v_log_level = 30
     v_configuration["LOGGING"]="WARNING"
@@ -82,6 +83,7 @@ elif v_configuration["LOGGING"].upper() == "ERROR":
     v_log_level = 40
 elif v_configuration["LOGGING"].upper() == "CRITICAL":
     v_log_level = 50
+coloredlogs.install(level=v_configuration["LOGGING"])
 v_logger.setLevel(v_log_level)
 
 if v_configuration.get("PREFIX"):
@@ -212,13 +214,13 @@ for config_line in v_conf:
     v_chart_conf_file,\
     v_columns_conf_file = parse_report_conf_line(v_configuration, v_logger, config_line, v_workbook, v_worksheet)
 
-    logging.debug("Current config_line is:")
-    logging.debug("v_id=[" + v_id + "]")
-    logging.debug("v_plugin=[" + v_plugin + "]")
-    logging.debug("v_source_file=[" + v_source_file + "]")
-    logging.debug("v_worksheet_title=[" + v_worksheet_title + "]")
-    logging.debug("v_chart_title=[" + v_chart_conf_file + "]")
-    logging.debug("v_columns_conf_file=[" + v_columns_conf_file + "]")
+    v_logger.debug("Current config_line is:")
+    v_logger.debug("v_id=[" + v_id + "]")
+    v_logger.debug("v_plugin=[" + v_plugin + "]")
+    v_logger.debug("v_source_file=[" + v_source_file + "]")
+    v_logger.debug("v_worksheet_title=[" + v_worksheet_title + "]")
+    v_logger.debug("v_chart_title=[" + v_chart_conf_file + "]")
+    v_logger.debug("v_columns_conf_file=[" + v_columns_conf_file + "]")
 
     # v_title, v_data = plugin_oradb.oradb_gather_data(v_configuration, v_logger, config_line, v_workbook, v_worksheet)
     # get data from plugin using source file - dynamic call function from dynamic imported modules
@@ -231,7 +233,7 @@ for config_line in v_conf:
     # if we not use calculating columns, write data to worksheet
     # if v_columns_conf == "":
     if v_columns_conf_file == "default":
-        logging.debug("id [" + v_id + "] is default data inserting")
+        v_logger.debug("id [" + v_id + "] is default data inserting")
         default_write_to_the_worksheet(v_configuration, v_logger, config_line, v_workbook, v_worksheet,
                                        v_title,
                                        v_data,
@@ -241,7 +243,7 @@ for config_line in v_conf:
     # adding calculating columns
     # if v_columns_conf != "":
     else:
-        logging.debug("id [" + v_id + "] is custom data inserting")
+        v_logger.debug("id [" + v_id + "] is custom data inserting")
         custom_write_to_the_worksheet(v_configuration, v_logger, config_line, v_workbook, v_worksheet,
                                       v_title,
                                       v_data,
@@ -254,7 +256,7 @@ for config_line in v_conf:
 
     # If default, use all data
     if v_chart_conf_file == "default":
-        logging.debug("id [" + v_id + "] is default charts creating")
+        v_logger.debug("id [" + v_id + "] is default charts creating")
         add_default_chart_to_xlsx(v_configuration, v_logger, config_line, v_workbook, v_worksheet,
                                   v_title,
                                   len(v_data))
@@ -262,7 +264,7 @@ for config_line in v_conf:
         v_logger.debug("Created default chars to this data")
     # If not default, use config file
     elif v_chart_conf_file != "none":
-        logging.debug("id [" + v_id + "] is custom charts creating")
+        v_logger.debug("id [" + v_id + "] is custom charts creating")
         add_custom_charts_to_xlsx(v_configuration, v_logger, config_line, v_workbook, v_worksheet,
                                   len(v_data))
 

@@ -41,6 +41,8 @@ def ssh_gather_data(l_configuration, l_logger, l_config_line, l_workbook, l_work
     l_call_string = str(l_source_file).split('/')[1]
     r_call_string = "/tmp/" + l_call_string
 
+    l_logger = logging.getLogger('oracle-awr-report.plugin_ssh')
+
     l_logger.debug("local call string is [" + l_call_string + "]")
     l_logger.debug("local scripts is [" + l_script_file + "]")
 

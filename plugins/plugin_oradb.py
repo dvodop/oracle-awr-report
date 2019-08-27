@@ -26,6 +26,8 @@ def oradb_gather_data(l_configuration, l_logger, l_config_line, l_workbook, l_wo
     l_chart_conf_file,\
     l_columns_conf_file = parse_report_conf_line(l_configuration, l_logger, l_config_line, l_workbook, l_worksheet)
 
+    l_logger = logging.getLogger('oracle-awr-report.plugin_oradb')
+
     # check mandatory oracle parameters
     if not l_configuration.get("ORADB_TNS_ALIAS") \
             and not l_configuration.get("HOST") \
