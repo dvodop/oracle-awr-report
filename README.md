@@ -137,7 +137,7 @@ python -m pip install xlsxwriter
 python -m pip install coloredlogs
 python -m pip install scp
 ```
-6. In cygwin, check that your python-shell launces and it loads modules successfully:
+6. In cygwin, check that your python-shell launches and it loads modules successfully:
 ```bash
 python << __EOF__
 import cx_Oracle
