@@ -114,3 +114,38 @@ For gathering atop data from host prepared shell script **atop_parser.sh**. It w
 
 ***Note:** atop device name (in atop lvm statistic) has 12 chars length, so in long lvm names you should use, as parameter of lvm name for atop_parser.sh, tail of logical volume name*
 
+# Run it in cygwin:
+1. Install the followng cygwin-packages: `gcc python38 python38-devel python38-paramiko`
+2. To host-OS install `oracle instant client`, you can use the [follwing article](https://www.ibm.com/docs/en/opw/8.2.0?topic=client-installing-oracle-instant-windows) as a guide; Let's consider, here and after, that `oracle instant client` software was installed into the path, which are seen from cygwin as `/cygdrive/c/oracle_instant_client/instantclient_19_11`
+3. In cygwin set (and write setting into your `.bashrc`) oracle-related env-variables:
+```bash
+export ORACLE_HOME=/cygdrive/c/oracle_instant_client/instantclient_19_11
+export LD_LIBRARY_PATH=$ORACLE_HOME
+export PATH=$PATH:$ORACLE_HOME
+export TNS_ADMIN=$ORACLE_HOME/network/admin
+```
+4. In cygwin do:
+```bash
+mkdir $ORACLE_HOME/bin
+cp -v $ORACLE_HOME/sqlplus.exe $ORACLE_HOME/bin
+```
+5. In cygwin do:
+```bash
+python -m pip install cx_Oracle --upgrade
+python -m pip install colored-logs
+python -m pip install xlsxwriter
+python -m pip install coloredlogs
+python -m pip install scp
+```
+6. In cygwin, check that your python-shell launces and it loads modules successfully:
+```bash
+python << __EOF__
+import cx_Oracle
+import coloredlogs
+import xlsxwriter
+import scp
+import paramiko
+__EOF__
+```
+7. Now cygwin should be able to run this python-project (I mean: `oracle-awr-report`); 
+
